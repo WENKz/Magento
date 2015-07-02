@@ -24,28 +24,17 @@ class check {
             Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG
         );
      
-				if($cat != null){
+			
 				$products = Mage::getModel('catalog/product')->getCollection()->setStoreId(STORE_ID)
-
+				->joinField('category_id', 'catalog/category_product', 'category_id', 'product_id = entity_id', null, 'left')
                 ->addAttributeToSelect("name")
                 ->addAttributeToSelect("sku")
-				
-                ->addAttributeToSelect($name_attribute)
-									->joinField('category_id', 'catalog/category_product', 'category_id', 'product_id = entity_id', null, 'left')
-
-                ->addAttributeToFilter('status', array('eq' => 1))
-                ->addAttributeToFilter('category_id', array('in'=> $cat))
-                ->addAttributeToFilter('visibility', $visibility)->load();
-				
-				}else{
-				   $products = Mage::getModel('catalog/product')->getCollection()->setStoreId(STORE_ID)
-                ->addAttributeToSelect("name")
-                ->addAttributeToSelect("sku")
-				
                 ->addAttributeToSelect($name_attribute)
                 ->addAttributeToFilter('status', array('eq' => 1))
-                ->addAttributeToFilter('visibility', $visibility)->load();
-				}
+                ->addAttributeToFilter('category_id', array('eq'=> $cat))
+                ->addAttributeToFilter('visibility', $visibility);
+				
+				
 
         return $products;
     }
@@ -112,6 +101,23 @@ $check = new check();
     </select>
     
 </form>
+<style> 
+<!--
+table {
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+  border-collapse: collapse;
+  /* width: 50%; */
+}
+td {
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+
+}
+-->
+</style>
 <table>
     <?php
 	//var_dump($check->getCategories());
@@ -131,7 +137,15 @@ $check = new check();
                 $label_text = Mage::helper('core')->escapeHtml($product->$_GET["attribute"]);
             }
 			
-            echo "<tr><td>" . $product->getSku() . "</td><td>" . $product->getName() . "</td><td>" . $product->getVisibility() . "</td><td>" . $product->getStatus() . "</td><td>" . $attributeSetModel->getAttributeSetName() . "</td><td>" . $label_text . "</td></tr>";
+            echo "<tr><td>" . $product->getSku() . "</td><td>" . $product->getName() . "</td><td>" . $product->getVisibility() . "</td><td>" . $product->getStatus() . "</td><td>" . $attributeSetModel->getAttributeSetName() . "</td><td>" ;
+			if(is_array ($label_text)){
+				foreach($label_text as $lab){
+					echo $lab.",";
+				}
+				echo "</td></tr>";
+			}else{ 
+				echo $label_text . "</td></tr>";
+			}
         }
     }
     ?>
