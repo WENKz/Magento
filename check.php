@@ -7,17 +7,13 @@ Mage::setIsDeveloperMode(true);
 ini_set('display_errors', 1);
  define('STORE_ID', $_GET["boutique"]);Mage::app()->setCurrentStore(STORE_ID);
 Mage::app();
-
 class check {
-
     public function getAttributes() {
         $attributes = Mage::getResourceModel('catalog/product_attribute_collection')
                 ->getItems();
-
         return $attributes;
     }
-
-    public function getProduit($id_boutique, $name_attribute,$cat = null) {
+    public function getProduit($id_boutique, $name_attribute,$cat = null,$name_attribute2,$name_attribute3) {
       
         $visibility = array(
             Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH,
@@ -30,12 +26,13 @@ class check {
                 ->addAttributeToSelect("name")
                 ->addAttributeToSelect("sku")
                 ->addAttributeToSelect($name_attribute)
+				->addAttributeToSelect($name_attribute2)
+				->addAttributeToSelect($name_attribute3)
                 ->addAttributeToFilter('status', array('eq' => 1))
                 ->addAttributeToFilter('category_id', array('eq'=> $cat))
                 ->addAttributeToFilter('visibility', $visibility);
 				
 				
-
         return $products;
     }
 	public function getCategories(){
@@ -47,7 +44,6 @@ class check {
 	return $categories;
 	}
 }
-
 $check = new check();
 ?>
 <form id="form">
@@ -87,6 +83,33 @@ $check = new check();
                 }
                 ?>
     </select>
+	 <select name="attribute3">
+        <?php
+        foreach ($check->getAttributes() as $attribute) {
+            ?>
+            <option value="<?php echo $attribute->getAttributeCode() ?>" <?php
+            if (isset($_GET['attribute3']) && $_GET['attribute3'] == $attribute->getAttributeCode()) {
+                echo "selected";
+            }
+            ?>><?php echo $attribute->getFrontendLabel() ?></option>
+                    <?php
+                }
+                ?>
+    </select>
+	 <select name="attribute2">
+        <?php
+        foreach ($check->getAttributes() as $attribute) {
+            ?>
+            <option value="<?php echo $attribute->getAttributeCode() ?>" <?php
+            if (isset($_GET['attribute2']) && $_GET['attribute2'] == $attribute->getAttributeCode()) {
+                echo "selected";
+            }
+            ?>><?php echo $attribute->getFrontendLabel() ?></option>
+                    <?php
+                }
+                ?>
+    </select>
+	
 	<input type="submit"  value="envoyer">
 	  <select name="categories">
         <?php
@@ -114,7 +137,6 @@ td {
   border-width: 1px;
   border-style: solid;
   border-color: black;
-
 }
 -->
 </style>
@@ -122,12 +144,13 @@ td {
     <?php
 	//var_dump($check->getCategories());
     if (isset($_GET["boutique"]) && isset($_GET["attribute"]) ) {
-        $produits = $check->getProduit($_GET["boutique"], strtr(strtolower($_GET["attribute"]), array(" " => "_")),$_GET['categories']);
+        $produits = $check->getProduit($_GET["boutique"], strtr(strtolower($_GET["attribute"]), array(" " => "_")),$_GET['categories'],$_GET["attribute2"],$_GET["attribute3"]);
         $attributeSetModel = Mage::getModel("eav/entity_attribute_set");
         foreach ($produits as $product) {
-
             $attributeSetModel->load($product->getAttributeSetId());
             $label_text = "";
+			$label_text2 = "";
+			$label_text3 = "";
             $productModel = Mage::getModel('catalog/product');
             $attr = $productModel->getResource()->getAttribute($_GET["attribute"]);
             if ($attr->usesSource()) {
@@ -136,15 +159,44 @@ td {
             if (!$label_text) {
                 $label_text = Mage::helper('core')->escapeHtml($product->$_GET["attribute"]);
             }
+			 $attr2 = $productModel->getResource()->getAttribute($_GET["attribute2"]);
+            if ($attr2->usesSource()) {
+                $label_text2 = $attr2->getSource()->getOptionText($product->$_GET["attribute2"]);
+            }
+            if (!$label_text2) {
+                $label_text2 = Mage::helper('core')->escapeHtml($product->$_GET["attribute2"]);
+            }
+			
+			$attr3 = $productModel->getResource()->getAttribute($_GET["attribute3"]);
+            if ($attr3->usesSource()) {
+                $label_text3 = $attr3->getSource()->getOptionText($product->$_GET["attribute3"]);
+            }
+            if (!$label_text3) {
+                $label_text3 = Mage::helper('core')->escapeHtml($product->$_GET["attribute3"]);
+            }
 			
             echo "<tr><td>" . $product->getSku() . "</td><td>" . $product->getName() . "</td><td>" . $product->getVisibility() . "</td><td>" . $product->getStatus() . "</td><td>" . $attributeSetModel->getAttributeSetName() . "</td><td>" ;
 			if(is_array ($label_text)){
 				foreach($label_text as $lab){
 					echo $lab.",";
 				}
+				echo "</td><td>";
+			}else{ 
+				echo $label_text . "</td><td>";
+			}if(is_array ($label_text3)){
+				foreach($label_text3 as $lab3){
+					echo $lab3.",";
+				}
+				echo "</td><td>";
+			}else{ 
+				echo $label_text3 . "</td><td>";
+			}if(is_array ($label_text2)){
+				foreach($label_text2 as $lab2){
+					echo $lab2.",";
+				}
 				echo "</td></tr>";
 			}else{ 
-				echo $label_text . "</td></tr>";
+				echo $label_text2 . "</td></tr>";
 			}
         }
     }
