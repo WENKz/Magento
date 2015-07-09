@@ -1,37 +1,3 @@
-<?php/*
-error_reporting(E_ALL | E_STRICT);
-define('MAGENTO_ROOT', getcwd());
-$mageFilename = MAGENTO_ROOT . '/app/Mage.php';
-require_once $mageFilename;
-Mage::setIsDeveloperMode(true);
-ini_set('display_errors', 1);
- 
-Mage::app();
-Mage::app()->setCurrentStore(2);
-$reviews = Mage::getModel('review/review')->getResourceCollection();
-$reviews
-                ->addStatusFilter( Mage_Review_Model_Review::STATUS_APPROVED )
-                ->setDateOrder()
-                ->addRateVotes()
-              
-                      
-                ->load();
-				
-				
-				
-foreach($reviews as $review) {
-    $review_data = $review->getData();
-    $product = Mage::getModel('catalog/product')->load( $review_data['entity_pk_value'] );
-
-    ?>
-    <li>
-        <h4>Review of: <?php echo $product->getSku() ?></h4>
-        <p><?php echo $review_data['detail'] ; ?></p>
-    </li>
-    <?php
-	
-}*/
- ?>
  <?php
 error_reporting(E_ALL | E_STRICT);
 define('MAGENTO_ROOT', getcwd());
