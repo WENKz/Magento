@@ -1,4 +1,38 @@
-<?php
+<?php/*
+error_reporting(E_ALL | E_STRICT);
+define('MAGENTO_ROOT', getcwd());
+$mageFilename = MAGENTO_ROOT . '/app/Mage.php';
+require_once $mageFilename;
+Mage::setIsDeveloperMode(true);
+ini_set('display_errors', 1);
+ 
+Mage::app();
+Mage::app()->setCurrentStore(2);
+$reviews = Mage::getModel('review/review')->getResourceCollection();
+$reviews
+                ->addStatusFilter( Mage_Review_Model_Review::STATUS_APPROVED )
+                ->setDateOrder()
+                ->addRateVotes()
+              
+                      
+                ->load();
+				
+				
+				
+foreach($reviews as $review) {
+    $review_data = $review->getData();
+    $product = Mage::getModel('catalog/product')->load( $review_data['entity_pk_value'] );
+
+    ?>
+    <li>
+        <h4>Review of: <?php echo $product->getSku() ?></h4>
+        <p><?php echo $review_data['detail'] ; ?></p>
+    </li>
+    <?php
+	
+}*/
+ ?>
+ <?php
 error_reporting(E_ALL | E_STRICT);
 define('MAGENTO_ROOT', getcwd());
 $mageFilename = MAGENTO_ROOT . '/app/Mage.php';
@@ -19,20 +53,23 @@ class check {
             Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH,
             Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG
         );
-     
-			
-				$products = Mage::getModel('catalog/product')->getCollection()->setStoreId(STORE_ID)
-				->joinField('category_id', 'catalog/category_product', 'category_id', 'product_id = entity_id', null, 'left')
+			$products = Mage::getModel('catalog/product')->getCollection()->setStoreId(STORE_ID)
                 ->addAttributeToSelect("name")
                 ->addAttributeToSelect("sku")
                 ->addAttributeToSelect($name_attribute)
 				->addAttributeToSelect($name_attribute2)
 				->addAttributeToSelect($name_attribute3)
                 ->addAttributeToFilter('status', array('eq' => 1))
-                ->addAttributeToFilter('category_id', array('eq'=> $cat))
                 ->addAttributeToFilter('visibility', $visibility);
+     if($cat != null || $cat != ""){
+			
+			
 				
-				
+
+		$products->joinField('category_id', 'catalog/category_product', 'category_id', 'product_id = entity_id', null, 'left')
+                ->addAttributeToFilter('category_id', array('eq'=> $cat));
+
+}	
         return $products;
     }
 	public function getCategories(){
@@ -112,6 +149,7 @@ $check = new check();
 	
 	<input type="submit"  value="envoyer">
 	  <select name="categories">
+	  <option></option>
         <?php
         foreach ($check->getCategories() as $categorie) {
 			?>
